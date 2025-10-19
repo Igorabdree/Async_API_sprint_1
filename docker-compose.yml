@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: async_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+#    environment:
+#      - REDIS_HOST=redis
+#      - REDIS_PORT=6379
+#      - ELASTIC_HOST=elasticsearch
+#      - ELASTIC_PORT=9200
+#      - ELASTIC_SCHEMA=http://
+    depends_on:
+      - redis
+      - elasticsearch
+    restart: unless-stopped
+    networks:
+      - api_network_external
+      - api_network_internal
+
+  redis:
+    image: redis:7-alpine
+    container_name: async_api_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - api_network_internal
+
+  elasticsearch:
+    image: elasticsearch:8.9.0
+    container_name: async_api_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    restart: unless-stopped
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - api_network_internal
+
+volumes:
+  es_data:
+    name: es_volume
+    driver: local
+  redis_data:
+    name: redis_volume
+networks:
+  api_network_external:
+    driver: bridge
+    name: api_network_external
+  api_network_internal:
+    driver: bridge
+    name: api_network_internal
