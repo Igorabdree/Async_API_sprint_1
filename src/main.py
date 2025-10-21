@@ -1,3 +1,4 @@
+#ЗАПУСК СВАГЕРА И ПРИЛОЖЕНИЯ
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
@@ -32,7 +33,6 @@ async def shutdown():
 # Подключаем роутер к серверу, указав префикс /v1/films
 # Теги указываем для удобства навигации по документации
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
-app.include_router(films.router, prefix='/api/v1/search', tags=['search'])
 
 if __name__ == '__main__':
     uvicorn.run(
