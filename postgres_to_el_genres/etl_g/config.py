@@ -9,7 +9,6 @@ from typing import List
 class PostgresSettings(BaseSettings):
     """Postgres connection settings."""
     host: str = Field('dba', env='DB_HOST')
-    host: str = Field('dba', env='DB_HOST')
     # host: str = Field('127.0.0.1', env='DB_HOST')
     port: int = Field(5432, env='DB_PORT')
     dbname: str = Field('database', env='DB_NAME')
@@ -31,9 +30,9 @@ class ElasticsearchConnection(BaseSettings):
 class ElasticsearchSettings(BaseSettings):
     """Elasticsearch index settings."""
     connection: ElasticsearchConnection = ElasticsearchConnection()
-    index: str = 'movies'
+    index: str = 'genres'
     request_timeout: int = Field(30, env='ES_TIMEOUT')  # было 'timeout'
-    index_schema: dict = index_schema.movies
+    index_schema: dict = index_schema.genres
     verify_certs: bool = Field(False, env='ES_VERIFY_CERTS')
     ssl_show_warn: bool = Field(False, env='ES_SSL_SHOW_WARN')
     api_key: Optional[str] = Field(None, env='ES_API_KEY')
@@ -62,7 +61,7 @@ class Settings(BaseSettings):
     cache: Cashe = Cashe()
     delay: int = 1
     page_size: int = 1000
-    entities: Set[str] = ('film_work', 'person', 'genre')
+    entities: Set[str] = ('film_work',  'genre') #'genre_film_work',
     debug: str = Field('INFO', env='DEBUG')
 
 

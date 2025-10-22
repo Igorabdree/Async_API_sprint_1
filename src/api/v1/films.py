@@ -1,5 +1,3 @@
-#ДЛЯ ДОКУМЕНТАЦИИ В СВАГЕР РАЗДЕЛ V1
-
 from http import HTTPStatus
 from typing import Optional, List
 
@@ -30,21 +28,15 @@ class FilmsListResponse(BaseModel):
     page_size: int
     total_pages: int
 
-# Внедряем FilmService с помощью Depends(get_film_service)
+
 @router.get('/{film_id}', response_model=FilmsDetailsResponse)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> FilmsDetailsResponse:
     film = await film_service.get_by_id(film_id)
     if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum    # Такой код будет более поддерживаемым
+
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description,
-    # которое отсутствует в модели ответа API.
-    # Если бы использовалась общая модель для бизнес-логики и формирования ответов API,
-    # вы бы предоставляли клиентам данные, которые им не нужны
-    # и, возможно, данные, которые опасно возвращать
+
     return FilmsDetailsResponse(
         id=film.id,
         title=film.title,
@@ -55,10 +47,6 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
         writers=film.writers,
         directors=film.directors,
     )
-
-
-
-
 
 @router.get('/', response_model=FilmsListResponse)
 async def films_list(
@@ -95,8 +83,6 @@ async def films_list(
         page_size=page_size,
         total_pages=(len(films) + page_size - 1) // page_size
     )
-
-
 
 @router.get('/search/', response_model=FilmsListResponse)
 async def films_search(
