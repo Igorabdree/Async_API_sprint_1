@@ -8,7 +8,7 @@ from typing import List
 
 class PostgresSettings(BaseSettings):
     """Postgres connection settings."""
-    host: str = Field('dba', env='DB_HOST')
+    host: str = Field('db', env='DB_HOST')
     # host: str = Field('127.0.0.1', env='DB_HOST')
     port: int = Field(5432, env='DB_PORT')
     dbname: str = Field('database', env='DB_NAME')
