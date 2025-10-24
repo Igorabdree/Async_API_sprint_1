@@ -1,7 +1,6 @@
 
 # Используем pydantic для упрощения работы при перегонке данных из json в объекты ДЛЯ ЭЛАСТИИКА
 from pydantic import BaseModel
-from typing import Optional, List
 
 
 class FilmsResponseModel(BaseModel):
@@ -11,8 +10,8 @@ class FilmsResponseModel(BaseModel):
 
 class FilmsDetailsResponseModel(FilmsResponseModel):
     """Модель ответа API для фильмов"""
-    description: Optional[str]
-    genres: Optional[List]
-    directors: Optional[List] = None
-    actors: Optional[List] = None
-    writers: Optional[List] = None
+    description: str | None
+    genres: list | None
+    directors: list | None = None
+    actors: list | None = None
+    writers: list | None = None

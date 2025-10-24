@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
@@ -9,25 +10,44 @@ from src.api.v1 import films, genres
 from src.core import config, logger
 from src.db import elastic, redis
 
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    # Используем новый конфиг через settings
+    redis.redis = Redis(
+        host=config.settings.redis_host,
+        port=config.settings.redis_port
+    )
+    elastic.es = AsyncElasticsearch(
+        hosts=[config.settings.elastic_url]  # Используем computed property с полным URL
+    )
+
+    try:
+        await redis.redis.ping()
+        logging.info("✅ Redis connection established")
+
+        if await elastic.es.ping():
+            logging.info("✅ Elasticsearch connection established")
+        else:
+            logging.error("❌ Elasticsearch connection failed")
+
+    except Exception as e:
+        logging.error(f"❌ Connection error during startup: {e}")
+
+    yield
+
+    await redis.redis.close()
+    await elastic.es.close()
+    logging.info("✅ All connections closed")
+
+
 app = FastAPI(
-    title=config.PROJECT_NAME,
+    title=config.settings.project_name,  # Используем новый конфиг
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
+    lifespan=lifespan,
 )
-
-
-@app.on_event('startup')
-async def startup():
-    redis.redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
-    elastic.es = AsyncElasticsearch(hosts=[f'http://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
-
-
-@app.on_event('shutdown')
-async def shutdown():
-    await redis.redis.close()
-    await elastic.es.close()
-
 
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])

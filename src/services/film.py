@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Optional, List, Dict, Any
+from typing import Any
 import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -19,7 +19,7 @@ class FilmService:
         self.redis = redis
         self.elastic = elastic
 
-    async def get_by_id(self, film_id: str) -> Optional[FilmsDetailsResponseModel]:
+    async def get_by_id(self, film_id: str) -> FilmsDetailsResponseModel | None:
         film = await self._film_from_cache(film_id)
         if not film:
             film = await self._get_film_from_elastic(film_id)
@@ -28,7 +28,7 @@ class FilmService:
             await self._put_film_to_cache(film)
         return film
 
-    async def _get_film_from_elastic(self, film_id: str) -> Optional[FilmsDetailsResponseModel]:
+    async def _get_film_from_elastic(self, film_id: str) -> FilmsDetailsResponseModel | None:
         try:
             doc = await self.elastic.get(index='movies', id=film_id)
             logger.info(f"Elasticsearch response: {doc}")
@@ -48,7 +48,7 @@ class FilmService:
             logger.error(f"Error getting film from Elasticsearch: {e}")
             return None
 
-    async def _film_from_cache(self, film_id: str) -> Optional[FilmsDetailsResponseModel]:
+    async def _film_from_cache(self, film_id: str) -> FilmsDetailsResponseModel | None:
         data = await self.redis.get(film_id)
         if not data:
             return None
@@ -75,7 +75,7 @@ class FilmService:
         """Расчет индекса начала выборки"""
         return (page_number - 1) * page_size
 
-    def _build_sort(self, sort: str) -> List[Dict]:
+    def _build_sort(self, sort: str) -> list[dict]:
         """Построение параметров сортировки"""
         sort_field = sort.lstrip('-')
         sort_order = "desc" if sort.startswith('-') else "asc"
@@ -89,12 +89,13 @@ class FilmService:
         ]
 
     def _build_search_body(
-            self,
-            page_size: int,
-            from_index: int,
-            query: Optional[Dict[str, Any]] = None,
-            sort: Optional[List[Dict]] = None
-    ) -> Dict[str, Any]:
+        self,
+        page_size: int,
+        from_index: int,
+        query: dict[str, Any] | None = None,
+        sort: list[dict] | None = None
+
+    ) -> dict[str, Any]:
         """Построение тела запроса для Elasticsearch"""
         search_body = {
             "size": page_size,
@@ -111,7 +112,7 @@ class FilmService:
 
         return search_body
 
-    async def _process_elasticsearch_result(self, result: Dict[str, Any]) -> List[FilmsResponseModel]:
+    async def _process_elasticsearch_result(self, result: dict[str, Any]) -> list[FilmsResponseModel]:
         """Обработка результатов из Elasticsearch"""
         films = []
         for hit in result['hits']['hits']:
@@ -128,7 +129,7 @@ class FilmService:
 
         return films
 
-    async def _execute_elasticsearch_search(self, search_body: Dict[str, Any]) -> List[FilmsResponseModel]:
+    async def _execute_elasticsearch_search(self, search_body: dict[str, Any]) -> list[FilmsResponseModel]:
         """Выполнение поиска в Elasticsearch"""
         try:
             result = await self.elastic.search(
@@ -145,7 +146,7 @@ class FilmService:
             sort: str = "-imdb_rating",
             page_size: int = 50,
             page_number: int = 1
-    ) -> List[FilmsResponseModel]:
+    ) -> list[FilmsResponseModel]:
         """Получить список фильмов с пагинацией и сортировкой"""
         from_index = self._calculate_pagination(page_number, page_size)
         sort_body = self._build_sort(sort)
@@ -158,7 +159,7 @@ class FilmService:
             query: str,
             page_size: int = 50,
             page_number: int = 1
-    ) -> List[FilmsResponseModel]:
+    ) -> list[FilmsResponseModel]:
         """Поиск фильмов по названию"""
         from_index = self._calculate_pagination(page_number, page_size)
         search_query = {"match": {"title": query}}

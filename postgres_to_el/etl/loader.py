@@ -1,6 +1,6 @@
 import logging
 from logging.config import dictConfig
-from typing import Dict, Any, Optional
+from typing import Any
 
 from lib.loggers import LOGGING
 from database.backoff_connection import backoff
@@ -15,10 +15,11 @@ class Loader:
 
     def __init__(
         self,
-        redis_settings: Dict[str, Any],
-        transport_options: Dict[str, Any],
+        redis_settings: dict[str, Any],
+        transport_options: dict[str, Any],
         index: str,
-        index_schema: Optional[Dict[str, Any]] = None
+        index_schema: dict[str, Any] | None = None
+
     ) -> None:
         """Конструктор класса ESLoader.
 

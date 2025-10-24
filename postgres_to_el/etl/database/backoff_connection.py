@@ -4,7 +4,7 @@
 import logging
 from functools import wraps
 from time import sleep
-from typing import Any, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def compute_delay(
         border_sleep_time: float,
         delay: float,
         retry: int,
-) -> Tuple[int, float]:
+) -> tuple[int, float]:
     """Compute delay for the next itteration.
 
      Args:

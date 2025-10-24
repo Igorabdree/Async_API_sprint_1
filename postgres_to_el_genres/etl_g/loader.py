@@ -1,6 +1,6 @@
 import logging
 from logging.config import dictConfig
-from typing import Dict, Any, Optional, List
+from typing import Any
 
 from lib.loggers import LOGGING
 from database.backoff_connection import backoff
@@ -15,10 +15,10 @@ class Loader:
 
     def __init__(
             self,
-            redis_settings: Dict[str, Any],
-            transport_options: Dict[str, Any],
+            redis_settings: dict[str, Any],
+            transport_options: dict[str, Any],
             index: str,
-            index_schema: Optional[Dict[str, Any]] = None
+            index_schema: dict[str, Any] | None = None
     ) -> None:
         """Конструктор класса Loader для жанров.
 
@@ -46,7 +46,7 @@ class Loader:
             logger.debug('Найдены данные для продолжения обработки: %s записей', len(state_data))
             self.process(state_data)
 
-    def convert_to_bulk_format(self, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def convert_to_bulk_format(self, data: dict[str, Any]) -> dict[str, Any] | None:
         """Преобразовать данные жанра в формат для bulk insert."""
         try:
             if not data.get('id'):
@@ -75,7 +75,7 @@ class Loader:
             logger.exception(f"❌ Ошибка преобразования жанра {data.get('id')}: {e}")
             return None
 
-    def validate_genre_document(self, doc: Dict[str, Any]) -> None:
+    def validate_genre_document(self, doc: dict[str, Any]) -> None:
         """Валидация документа жанра."""
         # Проверяем обязательные поля
         if not doc.get('id'):
@@ -95,7 +95,7 @@ class Loader:
         doc['film_ids'] = [film_id for film_id in doc['film_ids'] if film_id]
 
 
-    def process(self, data: List[Dict[str, Any]]) -> None:
+    def process(self, data: list[dict[str, Any]]) -> None:
         """Загрузить данные жанров в Elasticsearch.
 
         Args:
@@ -127,7 +127,7 @@ class Loader:
         self.state.set_state(key='data', value=None)
 
     @backoff()
-    def create_index(self, index: str, index_schema: Dict[str, Any]) -> None:
+    def create_index(self, index: str, index_schema: dict[str, Any]) -> None:
         """Создать индекс, если он не существует.
 
         Args:
@@ -146,7 +146,7 @@ class Loader:
             logger.debug("Индекс %s уже существует", index)
 
     @backoff()
-    def bulk(self, data: List[Dict[str, Any]]) -> tuple:
+    def bulk(self, data: list[dict[str, Any]]) -> tuple:
         """Выполнить пакетную вставку данных.
 
         Args:

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -37,10 +36,10 @@ async def genres_details(genres_id: str, genres_service: GenresService = Depends
     )
 
 
-@router.get('/', response_model=List[GenresResponse])
+@router.get('/', response_model=list[GenresResponse])
 async def genres_list(
         genres_service: GenresService = Depends(get_film_service)
-) -> List[GenresResponse]:
+) -> list[GenresResponse]:
     try:
         # Поиск всех жанров
         result = await genres_service.elastic.search(

@@ -1,9 +1,7 @@
 """Project settings."""
-from typing import Set, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from lib import index_schema
-from typing import List
 
 
 class PostgresSettings(BaseSettings):
@@ -21,7 +19,7 @@ class PostgresSettings(BaseSettings):
 class ElasticsearchConnection(BaseSettings):
     """Elasticsearch connection settings."""
     # hosts: List[str] = Field(['http://localhost:9200'], env='ES_HOST')
-    hosts: List[str] = Field(['http://elasticsearch:9200'], env='ES_HOST')
+    hosts: list[str] = Field(['http://elasticsearch:9200'], env='ES_HOST')
     request_timeout: int = Field(30, env='ES_TIMEOUT')
     max_retries: int = Field(3, env='ES_MAX_RETRIES')
     retry_on_timeout: bool = Field(True, env='ES_RETRY_ON_TIMEOUT')
@@ -35,8 +33,7 @@ class ElasticsearchSettings(BaseSettings):
     index_schema: dict = index_schema.movies
     verify_certs: bool = Field(False, env='ES_VERIFY_CERTS')
     ssl_show_warn: bool = Field(False, env='ES_SSL_SHOW_WARN')
-    api_key: Optional[str] = Field(None, env='ES_API_KEY')
-
+    api_key: str | None = Field(None, env='ES_API_KEY')
 
 class RedisSettings(BaseSettings):
     """Redis connection settings."""
@@ -61,7 +58,7 @@ class Settings(BaseSettings):
     cache: Cashe = Cashe()
     delay: int = 1
     page_size: int = 1000
-    entities: Set[str] = ('film_work', 'person', 'genre')
+    entities: set[str] = {'film_work', 'person', 'genre'}
     debug: str = Field('INFO', env='DEBUG')
 
 

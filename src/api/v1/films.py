@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -15,14 +14,14 @@ class FilmsResponse(BaseModel):
     imdb_rating: float
 
 class FilmsDetailsResponse(FilmsResponse):
-    description: Optional[str]
-    genres: Optional[List]
-    directors: Optional[List] = None
-    actors: Optional[List] = None
-    writers: Optional[List] = None
+    description: str | None
+    genres: list | None
+    directors: list | None = None
+    actors: list | None = None
+    writers: list | None = None
 
 class FilmsListResponse(BaseModel):
-    films: List[FilmsResponse]
+    films: list[FilmsResponse]
     total: int
     page: int
     page_size: int

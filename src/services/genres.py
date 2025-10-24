@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Optional, List, Dict, Any
 import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
@@ -19,7 +18,7 @@ class GenresService:
         self.redis = redis
         self.elastic = elastic
 
-    async def get_by_id(self, genres_id: str) -> Optional[GenresFullResponse]:
+    async def get_by_id(self, genres_id: str) -> GenresFullResponse | None:
         genres = await self._genres_from_cache(genres_id)
         if not genres:
             genres = await self._get_genres_from_elastic(genres_id)
@@ -28,7 +27,7 @@ class GenresService:
             await self._put_genres_to_cache(genres)
         return genres
 
-    async def _get_genres_from_elastic(self, genres_id: str) -> Optional[GenresFullResponse]:
+    async def _get_genres_from_elastic(self, genres_id: str) ->  GenresFullResponse | None:
         try:
             doc = await self.elastic.get(index='genres', id=genres_id)
             logger.info(f"Elasticsearch response: {doc}")
@@ -46,7 +45,7 @@ class GenresService:
             return None
 
 
-    async def _genres_from_cache(self, genres_id: str) -> Optional[GenresFullResponse]:
+    async def _genres_from_cache(self, genres_id: str) -> GenresFullResponse | None:
         data = await self.redis.get(genres_id)
         if not data:
             return None
