@@ -1,10 +1,11 @@
+import logging
 from contextlib import asynccontextmanager
+
+import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-import uvicorn
-import logging
 
 from src.api.v1 import films, genres
 from src.core import config, logger

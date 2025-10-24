@@ -1,6 +1,6 @@
+import logging
 from functools import lru_cache
 from typing import Any
-import logging
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends

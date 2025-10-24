@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, Field, field_serializer
 
+
 class Person(BaseModel):
     """Person data schema."""
     id: str

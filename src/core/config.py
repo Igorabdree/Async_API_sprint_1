@@ -3,8 +3,9 @@ from pathlib import Path
 from typing import ClassVar
 
 from pydantic import Field
-from src.core.logger import LOGGING
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from src.core.logger import LOGGING
 
 logging_config.dictConfig(LOGGING)
 
