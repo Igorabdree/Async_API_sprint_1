@@ -11,7 +11,7 @@ logging_config.dictConfig(LOGGING)
 
 class Settings(BaseSettings):
     """
-    Configuration settings for the application with validation.
+    Настройки конфигурации приложения с валидацией.
     """
 
     model_config = SettingsConfigDict(

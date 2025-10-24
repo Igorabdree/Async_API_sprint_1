@@ -1,7 +1,7 @@
 """Project settings."""
+from lib import index_schema
 from pydantic import Field
 from pydantic_settings import BaseSettings
-from lib import index_schema
 
 
 class PostgresSettings(BaseSettings):

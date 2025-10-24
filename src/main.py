@@ -14,13 +14,13 @@ from src.db import elastic, redis
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    # Используем новый конфиг через settings
+
     redis.redis = Redis(
         host=config.settings.redis_host,
         port=config.settings.redis_port
     )
     elastic.es = AsyncElasticsearch(
-        hosts=[config.settings.elastic_url]  # Используем computed property с полным URL
+        hosts=[config.settings.elastic_url]
     )
 
     try:

@@ -41,7 +41,6 @@ async def genres_list(
         genres_service: GenresService = Depends(get_film_service)
 ) -> list[GenresResponse]:
     try:
-        # Поиск всех жанров
         result = await genres_service.elastic.search(
             index='genres',
             body={

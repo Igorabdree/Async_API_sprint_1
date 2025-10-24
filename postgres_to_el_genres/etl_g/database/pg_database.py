@@ -1,5 +1,3 @@
-"""Postgres function implementations."""
-
 import logging
 from logging.config import dictConfig
 
@@ -17,20 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 class PGConnection(object):
-    """PG Connection class for backoff and execution PostgreSQL queiries.
 
-    The class implements backoff and wraps up execution sql queries.
-
-    Attributes:
-        pg_settings : settings for PG connection.
-
-    """
     def __init__(self, pg_settings: dict) -> None:
-        """PGConnection class constructor.
+        """Конструктор класса PGConnection.
 
         Args:
-            pg_settings: settings for PG connection.
-
+        pg_settings: настройки подключения к PostgreSQL.
         """
         self.pg_settings = pg_settings
         self.connection = None

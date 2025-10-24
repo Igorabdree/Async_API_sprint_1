@@ -1,16 +1,14 @@
-"""Schemas to transform and validate data."""
-
 from pydantic import BaseModel, Field, field_serializer
 
 
 class Person(BaseModel):
-    """Person data schema."""
+    """Схема данных для персоны."""
     id: str
     name: str
 
 class Movie(BaseModel):
 
-    """Movie data schema."""
+    """Схема данных фильма."""
     id: str
     imdb_rating: float | None = None
     genres: list[str] = Field(default_factory=list)

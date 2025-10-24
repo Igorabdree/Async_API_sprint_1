@@ -1,5 +1,4 @@
 
-# Используем pydantic для упрощения работы при перегонке данных из json в объекты ДЛЯ ЭЛАСТИИКА
 from pydantic import BaseModel
 
 

@@ -36,7 +36,6 @@ class FilmService:
             film_data = doc['_source'].copy()
             film_data['id'] = doc['_id']
 
-            # Заменяем None на пустые строки
             if film_data.get('description') is None:
                 film_data['description'] = ""
 
