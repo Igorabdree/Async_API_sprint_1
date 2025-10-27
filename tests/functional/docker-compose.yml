@@ -1,0 +1,85 @@
+version: '3.8'
+services:
+  elastic:
+    image: elasticsearch:8.9.0
+    container_name: elastic_test
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cluster/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - test_api
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_test
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - test_api
+
+  api:
+    build:
+#      context: ../..
+      context: ../../.
+      dockerfile: Dockerfile
+#      tags: ["async_api:latest"]
+    container_name: api_test
+    image: api_image
+    #    image: async_api
+    ports:
+      - "8000:8000"
+#    env_file:
+#      - .env
+    environment: # ← Лучше использовать environment вместо env_file
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ELASTIC_HOST=elastic
+      - ELASTIC_PORT=9200
+    depends_on:
+      - redis
+      - elastic
+    restart: unless-stopped
+    networks:
+      - test_api
+
+  tests:
+    container_name: tests
+    image: api_image
+    networks:
+      - test_api
+    depends_on:
+      - elastic
+      - redis
+      - api
+    #    env_file:
+    #      - ./test.env
+    environment:
+      - SERVICE_URL=http://api:8000
+      - ELASTIC_HOST=elastic
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    command: >
+
+      sh -c "pip install -r /app/tests/functional/requirements.txt
+      && python3 /app/tests/functional/utils/wait_for_es.py
+      && python3 /app/tests/functional/utils/wait_for_redis.py
+      && pytest /app/tests/functional/src/ -v"
+
+
+networks:
+  test_api:
+    driver: bridge
+    name: test_api

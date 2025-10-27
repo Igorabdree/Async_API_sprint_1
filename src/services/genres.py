@@ -29,7 +29,8 @@ class GenresService:
 
     async def _get_genres_from_elastic(self, genres_id: str) ->  GenresFullResponse | None:
         try:
-            doc = await self.elastic.get(index='genres', id=genres_id)
+            doc = await self.elastic.get(index='genres_test', id=genres_id)
+            # doc = await self.elastic.get(index='genres', id=genres_id)
             logger.info(f"Elasticsearch response: {doc}")
 
             genres_data = doc['_source'].copy()

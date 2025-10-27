@@ -5,6 +5,6 @@ class GenresResponse(BaseModel):
     name: str
 
 class GenresFullResponse(GenresResponse):
-    film_titles: list[str]
-    film_ids:list[str]
-    films_count: int
+    film_titles: list[str] | None
+    film_ids:list[str] | None
+    films_count: int | None

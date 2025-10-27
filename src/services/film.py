@@ -30,7 +30,8 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> FilmsDetailsResponseModel | None:
         try:
-            doc = await self.elastic.get(index='movies', id=film_id)
+            # doc = await self.elastic.get(index='movies', id=film_id)
+            doc = await self.elastic.get(index='movies_test', id=film_id)
             logger.info(f"Elasticsearch response: {doc}")
 
             film_data = doc['_source'].copy()
@@ -132,7 +133,8 @@ class FilmService:
         """Выполнение поиска в Elasticsearch"""
         try:
             result = await self.elastic.search(
-                index="movies",
+                # index="movies",
+                index="movies_test",
                 body=search_body
             )
             return await self._process_elasticsearch_result(result)

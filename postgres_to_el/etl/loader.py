@@ -2,9 +2,9 @@ import logging
 from logging.config import dictConfig
 from typing import Any
 
-from lib.loggers import LOGGING
 from database.backoff_connection import backoff
 from elasticsearch import Elasticsearch, helpers
+from lib.loggers import LOGGING
 from states import RedisStorage, State
 
 dictConfig(LOGGING)

@@ -1,13 +1,13 @@
 from http import HTTPStatus
-
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from src.core import logger
 from src.services.genres import GenresService, get_film_service
 
 router = APIRouter()
 
+logger = logging.getLogger(__name__)
 
 class GenresResponse(BaseModel):
     id: str
@@ -42,11 +42,11 @@ async def genres_list(
 ) -> list[GenresResponse]:
     try:
         result = await genres_service.elastic.search(
-            index='genres',
+            index='genres_test',
+            # index='genres',
             body={
                 "query": {"match_all": {}},
                 "size": 100,
-                "sort": [{"name": "asc"}]
             }
         )
 
