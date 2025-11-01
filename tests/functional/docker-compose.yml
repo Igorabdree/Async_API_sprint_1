@@ -32,18 +32,15 @@ services:
 
   api:
     build:
-#      context: ../..
       context: ../../.
       dockerfile: Dockerfile
-#      tags: ["async_api:latest"]
     container_name: api_test
     image: api_image
-    #    image: async_api
     ports:
       - "8000:8000"
 #    env_file:
 #      - .env
-    environment: # ← Лучше использовать environment вместо env_file
+    environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - ELASTIC_HOST=elastic

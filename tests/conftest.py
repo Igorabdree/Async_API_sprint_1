@@ -1,17 +1,13 @@
-import random
 from tests.functional.settings import test_settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-import pytest_asyncio
 import asyncio
-import datetime
-import uuid
 import aiohttp
-import pytest
-import pytest_asyncio
 import uuid
 import random
 import datetime
+import pytest_asyncio
+from redis.asyncio import Redis
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -20,7 +16,7 @@ def event_loop():
     yield loop
     loop.close()
 
-# 1. Фикстура для работы с ES клиентом
+
 @pytest_asyncio.fixture
 async def es_client():
     """Фикстура для работы с Elasticsearch клиентом"""
@@ -30,30 +26,15 @@ async def es_client():
     finally:
         await es_client.close()
 
-# # 2. Фикстура для очистки и создания индекса
-# @pytest_asyncio.fixture
-# async def setup_es_index(es_client):
-#     """Фикстура для очистки и создания индекса"""
-#     # Очищаем индекс
-#     if await es_client.indices.exists(index=test_settings.es_index):
-#         await es_client.indices.delete(index=test_settings.es_index)
-#
-#     # Создаем индекс
-#     await es_client.indices.create(
-#         index=test_settings.es_index,
-#         **test_settings.es_index_mapping
-#     )
 
 @pytest_asyncio.fixture
 async def setup_es_index(es_client):
     """Фикстура для очистки и создания индекса с параметром"""
     async def inner(index_name: str):
-        # Очищаем индекс
         if await es_client.indices.exists(index=index_name):
             await es_client.indices.delete(index=index_name)
             await asyncio.sleep(0.1)
 
-        # Создаем индекс
         await es_client.indices.create(
             index=index_name,
             **test_settings.es_index_mapping
@@ -63,35 +44,17 @@ async def setup_es_index(es_client):
     return inner
 
 
-# # 3. Фикстура для загрузки данных в ES
-# @pytest_asyncio.fixture
-# async def load_es_data(es_client, setup_es_index):
-#     """Фикстура для загрузки данных в Elasticsearch"""
-#     async def inner(bulk_query: list[dict]):
-#         updated, errors = await async_bulk(
-#             client=es_client,
-#             actions=bulk_query,
-#             refresh=True
-#         )
-#         if errors:
-#             raise Exception('Ошибка записи данных в Elasticsearch')
-#         return updated
-#     return inner
-
 @pytest_asyncio.fixture
 async def load_es_data(es_client, setup_es_index):
     """Фикстура для загрузки данных в Elasticsearch"""
     async def inner(bulk_query: list[dict], index_name: str = None):
-        # Если индекс не указан, берем из первого документа
         if index_name is None and bulk_query:
             index_name = bulk_query[0]['_index']
         elif index_name is None:
             index_name = test_settings.es_index
 
-        # Настраиваем индекс
         await setup_es_index(index_name)
 
-        # Загружаем данные
         updated, errors = await async_bulk(
             client=es_client,
             actions=bulk_query,
@@ -105,7 +68,6 @@ async def load_es_data(es_client, setup_es_index):
     return inner
 
 
-# 4. Фикстура для генерации тестовых данных (120 фильмов)
 @pytest_asyncio.fixture
 async def es_write_data(load_es_data):
     async def inner():
@@ -122,12 +84,11 @@ async def es_write_data(load_es_data):
         for row in es_data:
             bulk_query.append({'_index': 'movies_test', '_id': row['id'], '_source': row})
 
-        # Загружаем данные используя общую фикстуру
         await load_es_data(bulk_query)
 
     return inner
 
-# 5. Фикстура для генерации полных тестовых данных (2 фильма)
+
 @pytest_asyncio.fixture
 async def es_write_full_data(load_es_data):
     async def inner():
@@ -174,12 +135,11 @@ async def es_write_full_data(load_es_data):
         for row in es_data:
             bulk_query.append({'_index': 'movies_test', '_id': row['id'], '_source': row})
 
-        # Загружаем данные используя общую фикстуру
         await load_es_data(bulk_query, index_name='movies_test')
 
     return inner
 
-# 6. Фикстура для HTTP запросов (остается без изменений)
+
 @pytest_asyncio.fixture
 async def make_get_request():
     async def inner(path: str, query_data: dict = None):
@@ -211,7 +171,6 @@ async def make_get_genres_request():
 async def es_write_genres_data(load_es_data):
     """Фикстура для загрузки тестовых данных жанров в Elasticsearch"""
     async def inner():
-        # Список реальных жанров
         real_genres = [
             "Action", "Adventure", "Animation", "Comedy", "Crime",
             "Documentary", "Drama", "Fantasy", "Horror", "Mystery",
@@ -219,17 +178,12 @@ async def es_write_genres_data(load_es_data):
             "Family", "Musical", "War", "History", "Biography", "Sport"
         ]
 
-        # Генерируем данные жанров
         es_data = [{
             'id': str(uuid.uuid4()),
             'name': genre_name,
-            # 'description': f"Фильмы в жанре {genre_name}",
-            # 'created': datetime.now().isoformat(),
-            # 'updated': datetime.now().isoformat(),
-            # 'film_count': random.randint(10, 500)
+
         } for genre_name in real_genres]
 
-        # Подготавливаем bulk запрос
         bulk_query = []
         for row in es_data:
             bulk_query.append({
@@ -238,8 +192,6 @@ async def es_write_genres_data(load_es_data):
                 '_source': row
             })
 
-        # Загружаем данные используя общую фикстуру
-        # await load_es_data(bulk_query)
         await load_es_data(bulk_query, index_name='genres_test')
 
     return inner
@@ -249,7 +201,6 @@ async def es_write_genres_data(load_es_data):
 async def es_write_genres_full_data(load_es_data):
     """Фикстура для загрузки тестовых данных жанров в Elasticsearch"""
     async def inner():
-        # Список реальных жанров с фиксированными UUID
         real_genres = [
             {"name": "Action", "id": "3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff"},
             {"name": "Adventure", "id": "120a21cf-9097-479e-904a-13dd7198c1dd"},
@@ -273,7 +224,6 @@ async def es_write_genres_full_data(load_es_data):
             {"name": "Sport", "id": "a1b2c3d4-8e5f-4a6b-1c2d-4e5f6a7b8c9d"}
         ]
 
-        # Список популярных фильмов для заполнения
         popular_films = [
             "The Matrix", "Inception", "Avatar", "Titanic", "Star Wars",
             "The Godfather", "Pulp Fiction", "Forrest Gump", "The Dark Knight",
@@ -282,7 +232,6 @@ async def es_write_genres_full_data(load_es_data):
             "Spider-Man", "Iron Man", "Black Panther", "Wonder Woman", "Joker"
         ]
 
-        # Генерируем данные жанров по схеме
         es_data = []
         for genre in real_genres:
             import random
@@ -291,35 +240,25 @@ async def es_write_genres_full_data(load_es_data):
             film_ids = [str(uuid.uuid4()) for _ in range(films_count)]
 
             es_data.append({
-                'id': genre['id'],  # используем фиксированный UUID
+                'id': genre['id'],
                 'name': genre['name'],
                 'film_titles': film_titles,
                 'film_ids': film_ids,
                 'films_count': films_count
             })
 
-        # Подготавливаем bulk запрос
         bulk_query = []
         for row in es_data:
             bulk_query.append({
                 '_index': 'genres_test',
-                '_id': row['id'],  # используем фиксированный UUID как ID документа
+                '_id': row['id'],
                 '_source': row
             })
 
-        # Загружаем данные используя общую фикстуру
         await load_es_data(bulk_query, index_name='genres_test')
 
     return inner
 
-import pytest_asyncio
-from redis.asyncio import Redis
-import os
-
-import pytest
-import pytest_asyncio
-from redis.asyncio import Redis
-import os
 
 @pytest_asyncio.fixture
 async def redis_client():
@@ -332,10 +271,8 @@ async def redis_client():
     )
 
     try:
-        # Очищаем БД перед тестом
         await redis.flushdb()
         yield redis
     finally:
-        # Очищаем БД после теста и закрываем соединение
         await redis.flushdb()
         await redis.close()
