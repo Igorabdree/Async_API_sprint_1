@@ -1,4 +1,4 @@
-from typing import TypeVar,  Generator, Annotated
+from typing import TypeVar, Annotated
 
 import pytest
 

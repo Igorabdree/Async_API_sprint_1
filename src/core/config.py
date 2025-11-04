@@ -22,13 +22,13 @@ class Settings(BaseSettings):
     )
     project_name: str = Field('movies', alias='PROJECT_NAME')
 
-    # redis_host: str = Field('redis')
-    redis_host: str = Field('127.0.0.1', alias='REDIS_HOST')
+    redis_host: str = Field('redis')
+    # redis_host: str = Field('127.0.0.1', alias='REDIS_HOST')
     redis_port: int = Field(6379, alias='REDIS_PORT')
 
     elastic_schema: str = Field('http://', alias='ELASTIC_SCHEMA')
-    elastic_host: str = Field('127.0.0.1', alias='ELASTIC_HOST')
-    # elastic_host: str = Field('elastic')
+    # elastic_host: str = Field('127.0.0.1', alias='ELASTIC_HOST')
+    elastic_host: str = Field('elasticsearch')
     elastic_port: int = Field(9200, alias='ELASTIC_PORT')
     BASE_DIR: ClassVar[Path] = Path(__file__).parent.parent.parent
 

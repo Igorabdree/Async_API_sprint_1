@@ -2,8 +2,9 @@ import json
 
 import pytest
 
-from tests.conftest import es_write_data, make_get_genres_request, es_write_genres_data, load_es_data, es_client,setup_es_index, es_write_genres_full_data, redis_client
-from tests.functional.utils.helpers import Fixture
+from conftest import es_write_data, make_get_genres_request, es_write_genres_data, load_es_data, es_client,setup_es_index, es_write_genres_full_data, redis_client
+
+from functional.utils.helpers import Fixture
 
 
 class TestGenres:
@@ -21,11 +22,11 @@ class TestGenres:
             self,
             es_write_data: Fixture,
             expected_answer: dict,
-            load_es_data,
-            es_client,
-            setup_es_index,
-            es_write_genres_data,
-            make_get_genres_request,
+            load_es_data: Fixture,
+            es_client: Fixture,
+            setup_es_index: Fixture,
+            es_write_genres_data: Fixture,
+            make_get_genres_request: Fixture,
     ):
 
         await es_write_genres_data()
@@ -58,11 +59,11 @@ class TestGenres:
         self,
         es_write_data: Fixture,
         expected_answer: dict,
-        load_es_data,
-        es_client,
-        setup_es_index,
-        es_write_genres_full_data,
-        make_get_genres_request,
+        load_es_data: Fixture,
+        es_client: Fixture,
+        setup_es_index: Fixture,
+        es_write_genres_full_data: Fixture,
+        make_get_genres_request: Fixture,
         path: str
     ):
 
@@ -97,12 +98,12 @@ class TestGenres:
             self,
             es_write_data: Fixture,
             expected_answer: dict,
-            load_es_data,
-            es_client,
-            setup_es_index,
-            es_write_genres_full_data,
-            make_get_genres_request,
-            redis_client,
+            load_es_data: Fixture,
+            es_client: Fixture,
+            setup_es_index: Fixture,
+            es_write_genres_full_data: Fixture,
+            make_get_genres_request: Fixture,
+            redis_client: Fixture,
             path: str
     ):
 

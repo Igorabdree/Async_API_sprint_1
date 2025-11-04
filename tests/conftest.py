@@ -1,4 +1,5 @@
-from tests.functional.settings import test_settings
+from functional.settings import test_settings
+# from settings import test_settings
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 import asyncio
@@ -8,6 +9,7 @@ import random
 import datetime
 import pytest_asyncio
 from redis.asyncio import Redis
+import os
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -20,7 +22,8 @@ def event_loop():
 @pytest_asyncio.fixture
 async def es_client():
     """Фикстура для работы с Elasticsearch клиентом"""
-    es_client = AsyncElasticsearch(hosts=test_settings.es_host, verify_certs=False)
+    # es_client = AsyncElasticsearch(hosts=test_settings.es_host, verify_certs=False)
+    es_client = AsyncElasticsearch(hosts=[test_settings.es_host], verify_certs=False)
     try:
         yield es_client
     finally:
@@ -144,7 +147,7 @@ async def es_write_full_data(load_es_data):
 async def make_get_request():
     async def inner(path: str, query_data: dict = None):
         async with aiohttp.ClientSession() as session:
-            url = f'http://localhost:8000/api/v1/films{path}'
+            url = f'{test_settings.service_url}/api/v1/films{path}'
             async with session.get(url, params=query_data) as response:
                 return {
                     'body': await response.json(),
@@ -157,7 +160,8 @@ async def make_get_request():
 async def make_get_genres_request():
     async def inner(path: str, query_data: dict = None):
         async with aiohttp.ClientSession() as session:
-            url = f'http://localhost:8000/api/v1/genres{path}'
+            url = f'{test_settings.service_url}/api/v1/genres{path}'
+
             async with session.get(url, params=query_data) as response:
                 return {
                     'body': await response.json(),
@@ -264,8 +268,8 @@ async def es_write_genres_full_data(load_es_data):
 async def redis_client():
     """Асинхронная фикстура для клиента Redis"""
     redis = Redis(
-        host='127.0.0.1',
-        port=6379,
+        host= os.getenv('REDIS_HOST', 'redis'),
+        port= os.getenv('REDIS_PORT', 6379),
         db=0,
         decode_responses=True
     )

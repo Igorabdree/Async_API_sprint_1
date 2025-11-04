@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  elastic:
+  elasticsearch:
     image: elasticsearch:8.9.0
     container_name: elastic_test
     environment:
@@ -15,7 +15,9 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - test_api
+      test_api:
+        aliases:
+          - elasticsearch
 
   redis:
     image: redis:7-alpine
@@ -28,7 +30,9 @@ services:
       timeout: 10s
       retries: 3
     networks:
-      - test_api
+      test_api:
+        aliases:
+          - redis
 
   api:
     build:
@@ -38,43 +42,42 @@ services:
     image: api_image
     ports:
       - "8000:8000"
-#    env_file:
-#      - .env
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - ELASTIC_HOST=elastic
+      - ELASTIC_HOST=elasticsearch
       - ELASTIC_PORT=9200
+
     depends_on:
       - redis
-      - elastic
+      - elasticsearch
     restart: unless-stopped
     networks:
-      - test_api
+      test_api:
+        aliases:
+          - api
 
   tests:
     container_name: tests
     image: api_image
     networks:
-      - test_api
+      test_api:
+        aliases:
+          - tests
     depends_on:
-      - elastic
+      - elasticsearch
       - redis
       - api
-    #    env_file:
-    #      - ./test.env
     environment:
       - SERVICE_URL=http://api:8000
-      - ELASTIC_HOST=elastic
+      - ELASTIC_HOST=elasticsearch
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     command: >
-
       sh -c "pip install -r /app/tests/functional/requirements.txt
       && python3 /app/tests/functional/utils/wait_for_es.py
       && python3 /app/tests/functional/utils/wait_for_redis.py
       && pytest /app/tests/functional/src/ -v"
-
 
 networks:
   test_api:

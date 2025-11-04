@@ -2,8 +2,9 @@ import json
 
 import pytest
 
-from tests.conftest import es_write_data, make_get_request, es_write_full_data, load_es_data, es_client,setup_es_index, redis_client
-from tests.functional.utils.helpers import Fixture
+from conftest import es_write_data, make_get_request, es_write_full_data, load_es_data, es_client,setup_es_index, redis_client
+
+from functional.utils.helpers import Fixture
 
 
 class TestFilms:
@@ -44,9 +45,9 @@ class TestFilms:
             make_get_request:Fixture,
             query_params:dict,
             expected_answer: dict,
-            load_es_data,
-            es_client,
-            setup_es_index
+            load_es_data: Fixture,
+            es_client: Fixture,
+            setup_es_index: Fixture
     ):
 
         await es_write_data()
