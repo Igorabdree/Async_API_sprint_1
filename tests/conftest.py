@@ -22,7 +22,6 @@ def event_loop():
 @pytest_asyncio.fixture
 async def es_client():
     """Фикстура для работы с Elasticsearch клиентом"""
-    # es_client = AsyncElasticsearch(hosts=test_settings.es_host, verify_certs=False)
     es_client = AsyncElasticsearch(hosts=[test_settings.es_host], verify_certs=False)
     try:
         yield es_client
@@ -42,7 +41,7 @@ async def setup_es_index(es_client):
             index=index_name,
             **test_settings.es_index_mapping
         )
-        print(f"✅ Index '{index_name}' recreated")
+        logger.info(f"✅ Index '{index_name}' recreated")
 
     return inner
 

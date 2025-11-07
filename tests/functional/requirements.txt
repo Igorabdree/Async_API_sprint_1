@@ -1,3 +1,4 @@
 pydantic-settings==2.1.0
 pytest==7.4.3
 pytest-asyncio==0.21.1
+backoff==2.2.1
