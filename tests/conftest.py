@@ -1,6 +1,6 @@
 from functional.settings import test_settings
 # from settings import test_settings
-from elasticsearch import AsyncElasticsearch
+from functional.utils.helpers import AbstractAsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 import asyncio
 import aiohttp
@@ -22,7 +22,7 @@ def event_loop():
 @pytest_asyncio.fixture
 async def es_client():
     """Фикстура для работы с Elasticsearch клиентом"""
-    es_client = AsyncElasticsearch(hosts=[test_settings.es_host], verify_certs=False)
+    es_client = AbstractAsyncElasticsearch(hosts=[test_settings.es_host], verify_certs=False)
     try:
         yield es_client
     finally:
